@@ -7,6 +7,11 @@ const file_include = require('gulp-file-include');
 const del = require('del');
 const rename = require('gulp-rename');
 const sourcemaps = require('gulp-sourcemaps');
+// Html
+const pug = require('gulp-pug');
+const pugLinter = require('gulp-pug-linter');
+const htmlValidator = require('gulp-w3c-html-validator');
+const gulpHtmlBemValidator = require('gulp-html-bem-validator');
 // Plugins Css
 const sass = require('gulp-sass');
 const auto_prefix = require('gulp-autoprefixer');
@@ -39,15 +44,15 @@ const path = {
         fonts: `${project_folder}/fonts/`,
     },
     src: {
-        html: [`${source_folder}/*.html`, `!${source_folder}/_*.html`],
+        html: `${source_folder}/pug/pages/*.pug`,
         css: `${source_folder}/scss/index.scss`,
         js: `${source_folder}/js/index.js`,
         img: `${source_folder}/img/*.{jpg,png,svg,gif,ico,webp}`,
-        video: `${source_folder}/video/*.{mp4`,
+        video: `${source_folder}/video/*.{mp4}`,
         fonts: `${source_folder}/fonts/*.ttf`,
     },
     watch: {
-        html: `${source_folder}/**/*.html`,
+        html: `${source_folder}/pug/**/*.pug`,
         css: `${source_folder}/scss/**/*.scss`,
         js: `${source_folder}/js/**/*.js`,
         img: `${source_folder}/img/*.{jpg,png,svg,gif,ico,webp}`,
@@ -60,7 +65,10 @@ const path = {
 
 function html() {
     return src(path.src.html)
-        .pipe(file_include())
+        .pipe(pugLinter({ reporter: 'default' }))
+        .pipe(pug())
+        .pipe(htmlValidator())
+        .pipe(gulpHtmlBemValidator())
         .pipe(webpHtml())
         .pipe(dest(path.build.html))
         .pipe(server.stream())
